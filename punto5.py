@@ -33,18 +33,18 @@ def crear_bosque(tree):
     heroes_tree = BinaryTree()
     villanos_tree = BinaryTree()
     
-    def dividir_arbol(root):
+    def dividir_arbol(root): # funcion recursiva
         if root is not None:
-            if root.other_value.get('is_hero'):
-                heroes_tree.insert_node(root.value, root.other_value)
+            if root.other_value.get('is_hero'): # si es un heroe
+                heroes_tree.insert_node(root.value, root.other_value) # insertar nodo
             else:
-                villanos_tree.insert_node(root.value, root.other_value)
-            dividir_arbol(root.left)
-            dividir_arbol(root.right)
+                villanos_tree.insert_node(root.value, root.other_value) # si villano insertarlo en el arbol villanos
+            dividir_arbol(root.left) # ingresa la raiz izquierda y procesa
+            dividir_arbol(root.right) # ingresa la raiz derecha y procesa
     
     dividir_arbol(tree.root)
     
-    return heroes_tree, villanos_tree
+    return heroes_tree, villanos_tree # devuelve los arboles creados
 
 
 # Funciones para listar héroes y villanos en orden alfabético en sus respectivos árboles
@@ -57,13 +57,13 @@ def listar_villanos_alfabetico(villanos_tree):
     villanos_tree.inorden()
 
 # Función para contar nodos de un árbol
-def contar_nodos(tree):
+def contar_nodos(tree): # ingresa el arbol como argumento
     def __contar(root):
         if root is None:
             return 0
         return 1 + __contar(root.left) + __contar(root.right)
 
-    return __contar(tree.root)
+    return __contar(tree.root) # funcion recursiva 
 
 # Crear el bosque de héroes y villanos y contar sus nodos
 def crear_bosque_y_contar_nodos(tree):
@@ -125,5 +125,6 @@ print("\n")
 # I. determinar cuántos nodos tiene cada árbol;
 # II. realizar un barrido ordenado alfabéticamente de cada árbol.
 heroes_tree, villanos_tree = crear_bosque_y_contar_nodos(mcu_tree)
+print("")
 listar_heroes_alfabetico(heroes_tree)
 listar_villanos_alfabetico(villanos_tree)

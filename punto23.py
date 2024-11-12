@@ -232,15 +232,16 @@ lista_criaturas = [
   }
 ]
 
-class CreatureTree(BinaryTree):
+class CreatureTree(BinaryTree): # CreatureTree hereda de BinaryTree
     
     # Cargar criaturas en el árbol desde JSON
     def __init__(self):
-        super().__init__()
-        self.defeated_by_count = {}
+        super().__init__() # super().__init__() hereda el constructor de la clase padre(BinaryTree) 
+        self.defeated_by_count = {} # Diccionario para derrotado por (pueden ser varios)
 
     def insert_creature(self, data):
-        name = data["criatura"]
+        name = data["criatura"] # data["criatura"] es el nombre de cada criatura
+        # .get() si la clave existe, se devuelve el valor asociado. Si la clave no existe (es decir, no se encuentra en el diccionario), se devuelve el valor predeterminado "" (una cadena vacía)
         defeated_by = data.get("derrotado_por", "")
         description = data.get("descripcion", "")
         captured_by = data.get("capturada", "")
@@ -249,18 +250,23 @@ class CreatureTree(BinaryTree):
             "description": description,
             "captured_by": captured_by
         }
-        if defeated_by:
+        if defeated_by: # Si existe defeated_by
+            # Esta línea de código actualiza un diccionario llamado defeated_by_count, que lleva un registro de cuántas criaturas han sido derrotadas por cada héroe o dios
+            # si nunca antes se ha registrado a ese héroe o dios, se empieza con un conteo de 0
+            # se le suma 1, ya que estamos contando una nueva criatura que ese héroe o dios ha derrotado
             self.defeated_by_count[defeated_by] = self.defeated_by_count.get(defeated_by, 0) + 1
         self.insert_node(name, other_value)
 
     # Listado inorden de criaturas y quién las derrotó
     def inorden_creatures_and_defeated_by(self):
-        def __inorden(root):
-            if root:
+        def __inorden(root): # empieza ejecutando el recorrido en el nodo raíz del árbol binario, que está almacenado en self.root
+            if root: # comprueba si el nodo actual (root) es None. Si es None, significa que hemos llegado a una hoja del árbol (o no hay más nodos en ese subárbol), por lo que la función termina la recursión para esa rama.
+            # Si el nodo existe (root no es None), se sigue procesando
                 __inorden(root.left)
+                # get('defeated_by', 'No derrotado') obtiene el valor asociado con la clave 'defeated_by'. Si no se encuentra esa clave (es decir, si la criatura no tiene un héroe o dios registrado como su derrotador), devuelve 'No derrotado' como valor por defecto
                 print(f"{root.value}: derrotado por {root.other_value.get('defeated_by', 'No derrotado')}")
                 __inorden(root.right)
-        __inorden(self.root)
+        __inorden(self.root) # se llama a __inorden(self.root), donde self.root es el nodo raíz del árbol. Esto inicia el recorrido del árbol desde el nodo raíz y procesa todos los nodos del árbol en el orden inorden
 
     # Metodo by_level ordenando correctamente por nivel (mostrar 1ero el nivel 0, luego 1, 2, 3, y asi...)
     
@@ -268,14 +274,21 @@ class CreatureTree(BinaryTree):
     # Mostrar toda la información de Talos
     def show_talos_info(self):
         node = self.search("Talos")
-        if node:
+        if node: # si node no es None (es decir, si se encontró un nodo con el valor "Talos"), la condición se considera verdadera y el bloque de código dentro del if se ejecutará
             print(f"Talos: {node.other_value}")
         else:
             print("Talos no se encuentra en el árbol")
 
     # Determinar los 3 héroes o dioses que derrotaron mayor cantidad de criaturas
     def top_3_defeaters(self):
+        # items() de un diccionario devuelve una lista de tuplas, donde cada tupla tiene la forma (clave, valor) (es decir, (nombre del héroe, cantidad de criaturas derrotadas))
+        # sorted() ordena la lista de tuplas obtenida de items() en base a una clave proporcionada por el parámetro key
+        # La lambda toma un parámetro x (que es una tupla de la forma (héroe, cantidad)) y devuelve x[1], es decir, el valor de la tupla, que es la cantidad de criaturas derrotadas
         top_3 = sorted(self.defeated_by_count.items(), key=lambda x: x[1], reverse=True)[:3]
+        # Al especificar key=lambda x: x[1], le estamos indicando a sorted() que ordene las tuplas por la cantidad de criaturas derrotadas (el segundo valor de cada tupla)
+        # reverse=True hace que la ordenación se realice en orden descendente, es decir, de mayor a menor cantidad de criaturas derrotadas
+        # Después de ordenar la lista, [:3] selecciona los primeros 3 elementos de la lista ordenada, los 3 con mas victorias
+        # top_3 en este punto es: [("Heracles", 12), ("Zeus", 7), ("Perseo", 3)]
         print("Los 3 héroes/dioses que derrotaron más criaturas:")
         for name, count in top_3:
             print(f"{name} derrotó {count} criaturas")
@@ -304,11 +317,11 @@ class CreatureTree(BinaryTree):
     def mark_captured_by_heracles(self, names):
         for name in names:
             node = self.search(name)
-            if node:
-                node.other_value["captured_by"] = "Heracles"
+            if node: # Si el nodo existe
+                node.other_value["captured_by"] = "Heracles" # Agrega a other_value el ser capturada por Heracles
 
     # Búsqueda por coincidencia
-    def search_by_match(self, match):
+    def search_by_coincidencia(self, match):
         def __inorden(root):
             if root:
                 __inorden(root.left)
@@ -323,14 +336,14 @@ class CreatureTree(BinaryTree):
             self.delete_node(name)
 
     # Modificar Aves del Estínfalo con Heracles como derrotador
-    def update_stymphalian_birds(self):
+    def update_aves(self):
         node = self.search("Aves del Estínfalo")
         if node:
             node.other_value["defeated_by"] = "Heracles (derrotó varias)"
 
     def mostrar_aves_estinfalo(self):
     # Recorremos el árbol en busca del nodo con el valor "Aves del Estínfalo"
-      node = self.search('Aves del Estínfalo')  # Asumiendo que 'search' es un método que busca el nodo por su nombre
+      node = self.search('Aves del Estínfalo')  
 
     # Si el nodo existe, mostramos toda la información
       if node:
@@ -345,15 +358,17 @@ class CreatureTree(BinaryTree):
 
     # Modificar Ladón por Dragón Ladón
     def rename_ladon(self):
+        # Si el nodo se encuentra y se elimina correctamente, value tendrá el valor "Ladón" y extra_data tendrá los demás datos relacionados a la criatura "Ladón"
         value, extra_data = self.delete_node("Ladón")
-        if value:
+        if value: # Si value tiene un valor (es decir, no es None), significa que el nodo con el valor "Ladón" fue encontrado y eliminado exitosamente.
+            # Llama al método insert_node para insertar un nuevo nodo en el árbol con el nombre "Dragón Ladón". Los datos adicionales de la criatura (como su descripción y quién la derrotó) se pasan como extra_data para asociarlos al nuevo nodo
             self.insert_node("Dragón Ladón", extra_data)
 
     # Listado por nivel del arbol de forma desordenada (originalmente)
     def desorden_nivel(self):
         self.by_level_desordenado()
 
-    # Listado por nivel del árbol(0,1,2,3,4,5,6)
+    # Listado por nivel del árbol(0,1,2,3,4,5,6) (modificado)
     def orden_nivel(self):
       self.by_level_ordenado()
 
@@ -401,13 +416,13 @@ creature_tree.mark_captured_by_heracles(heracles_captures)
 
 # Búsqueda por coincidencia
 print("\nBúsqueda por coincidencia ('Cer'): ")
-creature_tree.search_by_match("Cer")
+creature_tree.search_by_coincidencia("Cer")
 
 # Eliminar Basilisco y Sirenas
 creature_tree.delete_creatures(["Basilisco", "Sirenas"])
 print("")
 # Modificar Aves del Estínfalo con Heracles como derrotador
-creature_tree.update_stymphalian_birds()
+creature_tree.update_aves()
 creature_tree.mostrar_aves_estinfalo()
 
 # Renombrar Ladón a Dragón Ladón
